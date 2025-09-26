@@ -352,6 +352,100 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
+        /* نافذة التأكيد المخصصة */
+        .custom-confirm {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .confirm-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            margin: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 3px solid var(--jubilee-main);
+            animation: popIn 0.3s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .confirm-icon {
+            font-size: 4rem;
+            color: var(--jubilee-main);
+            margin-bottom: 20px;
+        }
+        
+        .confirm-title {
+            font-size: 1.5rem;
+            color: var(--jubilee-main);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .confirm-phone {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin: 15px 0;
+            padding: 10px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            direction: ltr;
+        }
+        
+        .confirm-buttons {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .confirm-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            min-width: 100px;
+        }
+        
+        .confirm-yes {
+            background: linear-gradient(135deg, var(--jubilee-main), var(--primary-dark));
+            color: white;
+        }
+        
+        .confirm-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 139, 87, 0.4);
+        }
+        
+        .confirm-no {
+            background: linear-gradient(135deg, #777, #555);
+            color: white;
+        }
+        
+        .confirm-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
         @media (max-width: 768px) {
             .contact-cards {
                 grid-template-columns: 1fr;
@@ -384,6 +478,15 @@
             .contact-info strong {
                 width: 100%;
                 margin-bottom: 8px;
+            }
+            
+            .confirm-box {
+                margin: 15px;
+                padding: 30px 20px;
+            }
+            
+            .confirm-buttons {
+                flex-direction: column;
             }
         }
         
@@ -437,6 +540,27 @@
     </style>
 </head>
 <body>
+    <!-- نافذة التأكيد المخصصة -->
+    <div id="customConfirm" class="custom-confirm">
+        <div class="confirm-box">
+            <div class="confirm-icon">
+                <i class="fas fa-phone"></i>
+            </div>
+            <div class="confirm-title">📞 تأكيد الاتصال</div>
+            <p>هل تريد الاتصال بمنصة اليوبيل على الرقم:</p>
+            <div class="confirm-phone" id="confirmPhoneNumber">+966560088802</div>
+            <p>سيتم فتح تطبيق الهاتف للاتصال المباشر</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-yes" onclick="confirmCall()">
+                    <i class="fas fa-check"></i> نعم
+                </button>
+                <button class="confirm-btn confirm-no" onclick="cancelCall()">
+                    <i class="fas fa-times"></i> إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="logo-container">
@@ -564,11 +688,26 @@
     </div>
 
     <script>
-        // دالة لمحاكاة الاتصال
+        let currentPhone = '';
+
+        // دالة لعرض نافذة التأكيد المخصصة
         function callNumber(phone) {
-            if (confirm(`هل تريد الاتصال بالرقم: ${phone}؟`)) {
-                window.open(`tel:${phone}`);
-            }
+            currentPhone = phone;
+            document.getElementById('confirmPhoneNumber').textContent = phone;
+            document.getElementById('customConfirm').style.display = 'flex';
+        }
+
+        // دالة لتأكيد الاتصال
+        function confirmCall() {
+            document.getElementById('customConfirm').style.display = 'none';
+            window.open(`tel:${currentPhone}`);
+            currentPhone = '';
+        }
+
+        // دالة لإلغاء الاتصال
+        function cancelCall() {
+            document.getElementById('customConfirm').style.display = 'none';
+            currentPhone = '';
         }
 
         // دالة لمحاكاة فتح الخريطة
@@ -588,6 +727,20 @@
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
+
+        // إغلاق نافذة التأكيد عند النقر خارجها
+        document.getElementById('customConfirm').addEventListener('click', function(e) {
+            if (e.target.id === 'customConfirm') {
+                cancelCall();
+            }
+        });
+
+        // إغلاق نافذة التأكيد بالزر Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cancelCall();
+            }
+        });
     </script>
 </body>
 </html>
